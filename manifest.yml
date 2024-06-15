@@ -1,0 +1,19 @@
+modules:
+  jira:issuePanel:
+    - key: appfire-ui-task-hello-world-issue-panel
+      resource: main
+      resolver:
+        function: resolver
+      render: native
+      title: appfire-ui-task
+      icon: https://developer.atlassian.com/platform/forge/images/icons/issue-panel-icon.svg
+  function:
+    - key: resolver
+      handler: index.handler
+resources:
+  - key: main
+    path: src/frontend/index.jsx
+app:
+  runtime:
+    name: nodejs18.x
+  id: ari:cloud:ecosystem::app/2c31d2a1-4182-412f-8047-5266c10d9596
