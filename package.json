@@ -1,7 +1,7 @@
 {
   "name": "jira-issue-panel-ui-kit-2",
   "version": "1.0.30",
-  "main": "index.js",
+  "main": "index.ts",
   "license": "MIT",
   "private": true,
   "scripts": {
