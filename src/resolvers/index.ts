@@ -1,6 +1,5 @@
 import api, { route } from "@forge/api";
 import Resolver from "@forge/resolver";
-import { IssueFields } from "../model/IssueFields";
 import { LinkedBug } from "../model/LinkedBug";
 
 const resolver = new Resolver();
@@ -60,7 +59,7 @@ resolver.define("getLinkedBugsByIssueId", async (request) => {
   const issueLinksFields = await Promise.all(
     issueLinks
       .map(linkedIssueKeyFactory)
-      .map((issueKey: string) => getIssueFields(issueKey))
+      .map((issueKey: string) => getLinkedIssueFields(issueKey))
   );
 
   return issueLinks
@@ -86,7 +85,10 @@ resolver.define("unlinkIssue", async (request) => {
 
 // --- Private helpers ---
 
-function getIssueFields(issueKey: string): Promise<IssueFields> {
+function getLinkedIssueFields(issueKey: string): Promise<{
+  created: string;
+  assignee: string;
+}> {
   const endpoint = route`/rest/api/2/issue/${issueKey}?fields=created,assignee`;
   return api
     .asApp()
