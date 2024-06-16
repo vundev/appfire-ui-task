@@ -2,14 +2,16 @@ import { invoke } from "@forge/bridge";
 import { Button, DynamicTable, Text, useProductContext } from "@forge/react";
 import React, { useEffect, useState } from "react";
 import { LinkedBug } from "../../../model/LinkedBug";
+import { LinkedBugSortOrder } from "../../../model/LinkedBugSortOrder";
 
 export function IssueLinkTable() {
     const [linkedBugs, setLinkedBugs] = useState<LinkedBug[] | null>(null)
+    const [sortOrder, setSortOrder] = useState<LinkedBugSortOrder | null>(null)
 
     const context = useProductContext();
 
     const issueKey = context?.extension.issue.key
-
+    const isLoading = !linkedBugs || !sortOrder
     const linkedBugsTableHead = {
         cells: [
             {
@@ -47,11 +49,6 @@ export function IssueLinkTable() {
             }
         ]
     }
-
-    function sort(priority: string): number {
-        return ['Highest', 'High', 'Medium', 'Low', 'Lowest'].indexOf(priority);
-    }
-
     const linkedBugsTableRows = (linkedBugs || []).map((linkedBug, index) => ({
         key: `row-${index}`,
         cells: [
@@ -64,11 +61,11 @@ export function IssueLinkTable() {
                 content: linkedBug.summary,
             },
             {
-                key: linkedBug.status,
+                key: sortByLinkedBugSortOrder(sortOrder?.statusOrder, linkedBug.status),
                 content: linkedBug.status,
             },
             {
-                key: sort(linkedBug.priority),
+                key: sortByLinkedBugSortOrder(sortOrder?.priorityOrder, linkedBug.priority),
                 content: linkedBug.priority,
             },
             {
@@ -90,16 +87,24 @@ export function IssueLinkTable() {
     }));
 
     useEffect(() => {
-        if (!context) {
+        if (!context || !sortOrder) {
             return
         }
         invoke<LinkedBug[]>('getLinkedBugsByIssueId', {
             issueKey
         }).then(setLinkedBugs)
-    }, [context])
+    }, [context, sortOrder])
+
+    useEffect(() => {
+        invoke<LinkedBugSortOrder>('getLinkedBugSortOrder').then(setSortOrder)
+    }, [])
+
+    function sortByLinkedBugSortOrder(sortOrder: string[] | undefined, key: string): number {
+        return (sortOrder || []).indexOf(key);
+    }
 
     return <>
-        <DynamicTable isLoading={!linkedBugs}
+        <DynamicTable isLoading={isLoading}
             head={linkedBugsTableHead}
             rows={linkedBugsTableRows}
             emptyView={<Text>No linked bugs</Text>}></DynamicTable>

@@ -1,6 +1,7 @@
 import api, { route } from "@forge/api";
 import Resolver from "@forge/resolver";
 import { LinkedBug } from "../model/LinkedBug";
+import { LinkedBugSortOrder } from "../model/LinkedBugSortOrder";
 
 const resolver = new Resolver();
 
@@ -26,6 +27,11 @@ const linkedIssueKeyFactory = (issueLink: any): string => {
   const linkedIssue = issueLink.outwardIssue || issueLink.inwardIssue;
   return linkedIssue.key;
 };
+
+const linkedIssueOrderFactory = (order: any[]): string[] =>
+  order.map((orderItem) => orderItem.name);
+
+const toJSON = (data: any) => data.json();
 
 resolver.define("getText", (req) => {
   console.log(req);
@@ -73,6 +79,26 @@ resolver.define("getLinkedBugsByIssueId", async (request) => {
     });
 });
 
+resolver.define("getLinkedBugSortOrder", async () => {
+  const [priorityOrder, statusOrder] = await Promise.all([
+    api
+      .asApp()
+      .requestJira(route`/rest/api/2/priority`)
+      .then(toJSON)
+      .then(linkedIssueOrderFactory),
+    api
+      .asApp()
+      .requestJira(route`/rest/api/2/status`)
+      .then(toJSON)
+      .then(linkedIssueOrderFactory),
+  ]);
+
+  return <LinkedBugSortOrder>{
+    priorityOrder,
+    statusOrder,
+  };
+});
+
 resolver.define("unlinkIssue", async (request) => {
   const issueLinkId = request.payload.issueLinkId;
 
@@ -93,7 +119,7 @@ function getLinkedIssueFields(issueKey: string): Promise<{
   return api
     .asApp()
     .requestJira(endpoint)
-    .then((data) => data.json())
+    .then(toJSON)
     .then((json) =>
       Promise.resolve({
         created: json.fields.created,
