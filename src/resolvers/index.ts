@@ -1,6 +1,7 @@
 import api, { route } from "@forge/api";
 import Resolver from "@forge/resolver";
 import { LinkedBug } from "../model/LinkedBug";
+import { IssueFields } from "../model/IssueFields";
 
 const resolver = new Resolver();
 
@@ -55,13 +56,11 @@ resolver.define("getLinkedBugsByIssueId", async (request) => {
 
   const issueLinks = data.fields?.issuelinks || [];
 
-  const issueLinksCreationDates = await Promise.all(
+  const issueLinksFields = await Promise.all(
     issueLinks
       .map(linkedIssueKeyFactory)
-      .map((issueKey: string) => getIssueCreationDate(issueKey))
+      .map((issueKey: string) => getIssueFields(issueKey))
   );
-
-  console.log(issueLinksCreationDates);
 
   return issueLinks
     .filter(issueLinkedBugsFilter)
@@ -69,21 +68,22 @@ resolver.define("getLinkedBugsByIssueId", async (request) => {
     .map((linkedBug: LinkedBug, index: number) => {
       return <LinkedBug>{
         ...linkedBug,
-        created: issueLinksCreationDates[index],
+        ...issueLinksFields[index],
       };
     });
 });
 
-function getIssueCreationDate(issueKey: string): Promise<string> {
-  const endpoint = route`/rest/api/2/issue/${issueKey}?fields=created`;
+function getIssueFields(issueKey: string): Promise<IssueFields> {
+  const endpoint = route`/rest/api/2/issue/${issueKey}?fields=created,assignee`;
   return api
     .asApp()
     .requestJira(endpoint)
     .then((data) => data.json())
-    .then((json) => {
-        console.log(json)
-      return Promise.resolve(json.fields.created);
-    });
+    .then((json) => Promise.resolve({
+        created: json.fields.created ,
+        assignee: json.fields.assignee?.displayName || "",
+      })
+    );
 }
 
 export const handler = resolver.getDefinitions();

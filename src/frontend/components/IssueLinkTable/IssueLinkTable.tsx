@@ -38,6 +38,11 @@ export function IssueLinkTable() {
                 isSortable: true,
             },
             {
+                key: "assignee",
+                content: "Assignee",
+                isSortable: true,
+            },
+            {
                 content: 'Unlink'
             }
         ]
@@ -65,6 +70,10 @@ export function IssueLinkTable() {
             {
                 key: linkedBug.created,
                 content: new Date(linkedBug.created).toLocaleString(),
+            },
+            {
+                key: linkedBug.assignee,
+                content: linkedBug.assignee,
             },
             {
                 content: <Button appearance="subtle"

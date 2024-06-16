@@ -4,4 +4,5 @@ export interface LinkedBug {
   status: string;
   priority: string;
   created: string;
+  assignee: string;
 }
