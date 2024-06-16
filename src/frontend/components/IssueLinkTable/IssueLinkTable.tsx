@@ -77,7 +77,9 @@ export function IssueLinkTable() {
             },
             {
                 content: <Button appearance="subtle"
-                    onClick={() => console.log(linkedBug.key)}
+                    onClick={
+                        () => invoke('unlinkIssue', { issueLinkId: linkedBug.linkId }).then()
+                    }
                     iconBefore="editor-close"> </Button>
             }
         ],

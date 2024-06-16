@@ -1,7 +1,7 @@
 import api, { route } from "@forge/api";
 import Resolver from "@forge/resolver";
-import { LinkedBug } from "../model/LinkedBug";
 import { IssueFields } from "../model/IssueFields";
+import { LinkedBug } from "../model/LinkedBug";
 
 const resolver = new Resolver();
 
@@ -15,6 +15,7 @@ const linkedBugFactory = (issueLink: any) => {
   const linkedIssue = issueLink.outwardIssue || issueLink.inwardIssue;
   return <LinkedBug>{
     key: linkedIssue.key,
+    linkId: issueLink.id,
     summary: linkedIssue.fields.summary,
     status: linkedIssue.fields.status.name,
     priority: linkedIssue.fields.priority.name,
@@ -73,14 +74,27 @@ resolver.define("getLinkedBugsByIssueId", async (request) => {
     });
 });
 
+resolver.define("unlinkIssue", async (request) => {
+  const issueLinkId = request.payload.issueLinkId;
+
+  const endpoint = route`/rest/api/2/issueLink/${issueLinkId}`;
+
+  await api.asApp().requestJira(endpoint, {
+    method: "DELETE",
+  });
+});
+
+// --- Private helpers ---
+
 function getIssueFields(issueKey: string): Promise<IssueFields> {
   const endpoint = route`/rest/api/2/issue/${issueKey}?fields=created,assignee`;
   return api
     .asApp()
     .requestJira(endpoint)
     .then((data) => data.json())
-    .then((json) => Promise.resolve({
-        created: json.fields.created ,
+    .then((json) =>
+      Promise.resolve({
+        created: json.fields.created,
         assignee: json.fields.assignee?.displayName || "",
       })
     );

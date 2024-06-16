@@ -17,7 +17,7 @@ app:
   runtime:
     name: nodejs18.x
   id: ari:cloud:ecosystem::app/2c31d2a1-4182-412f-8047-5266c10d9596
-# Add permissions to call jira apis from resolvers
 permissions:
   scopes:
-    - 'read:jira-work'
+    - 'read:jira-work' # Add permissions to call jira apis from resolvers
+    - manage:jira-configuration # Make possioble to unlink issues
