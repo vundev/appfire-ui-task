@@ -48,6 +48,10 @@ export function IssueLinkTable() {
         ]
     }
 
+    function sort(priority: string): number {
+        return ['Highest', 'High', 'Medium', 'Low', 'Lowest'].indexOf(priority);
+    }
+
     const linkedBugsTableRows = (linkedBugs || []).map((linkedBug, index) => ({
         key: `row-${index}`,
         cells: [
@@ -64,7 +68,7 @@ export function IssueLinkTable() {
                 content: linkedBug.status,
             },
             {
-                key: linkedBug.priority,
+                key: sort(linkedBug.priority),
                 content: linkedBug.priority,
             },
             {
