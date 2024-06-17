@@ -53,7 +53,11 @@ resolver.define("getComments", async (req) => {
   return data.comments;
 });
 
-resolver.define("getLinkedBugsByIssueId", async (request) => {
+/**
+ * @returns Return an array of LinkedBug objects. If the issueKey is an empty
+ * string or undefined return an empty array.
+ */
+resolver.define("getLinkedBugsByIssueKey", async (request) => {
   const issueKey = request.payload.issueKey;
 
   const endpoint = route`/rest/api/2/issue/${issueKey}?fields=issuelinks`;

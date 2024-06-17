@@ -20,4 +20,5 @@ app:
 permissions:
   scopes:
     - 'read:jira-work' # Add permissions to call jira apis from resolvers
-    - manage:jira-configuration # Make possioble to unlink issues
+    - 'write:jira-work' # Make possioble to unlink issues
+    - 'manage:jira-configuration' # Make possioble to unlink issues

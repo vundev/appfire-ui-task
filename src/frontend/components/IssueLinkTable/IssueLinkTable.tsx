@@ -11,7 +11,7 @@ export function IssueLinkTable() {
     const context = useProductContext();
 
     const issueKey = context?.extension.issue.key
-    const isLoading = !linkedBugs || !sortOrder
+    const isLoadingGridData = !linkedBugs || !sortOrder
     const linkedBugsTableHead = {
         cells: [
             {
@@ -79,7 +79,8 @@ export function IssueLinkTable() {
             {
                 content: <Button appearance="subtle"
                     onClick={
-                        () => invoke('unlinkIssue', { issueLinkId: linkedBug.linkId }).then()
+                        () => invoke('unlinkIssue', { issueLinkId: linkedBug.linkId })
+                            .then(getLinkedBugsByIssueKey)
                     }
                     iconBefore="editor-close"> </Button>
             }
@@ -90,9 +91,7 @@ export function IssueLinkTable() {
         if (!context || !sortOrder) {
             return
         }
-        invoke<LinkedBug[]>('getLinkedBugsByIssueId', {
-            issueKey
-        }).then(setLinkedBugs)
+        getLinkedBugsByIssueKey()
     }, [context, sortOrder])
 
     useEffect(() => {
@@ -103,8 +102,14 @@ export function IssueLinkTable() {
         return (sortOrder || []).indexOf(key);
     }
 
+    function getLinkedBugsByIssueKey() {
+        invoke<LinkedBug[]>('getLinkedBugsByIssueKey', {
+            issueKey
+        }).then(setLinkedBugs)
+    }
+
     return <>
-        <DynamicTable isLoading={isLoading}
+        <DynamicTable isLoading={isLoadingGridData}
             head={linkedBugsTableHead}
             rows={linkedBugsTableRows}
             emptyView={<Text>No linked bugs</Text>}></DynamicTable>
