@@ -7,11 +7,12 @@ import { LinkedBugSortOrder } from "../../../model/LinkedBugSortOrder";
 export function IssueLinkTable() {
     const [linkedBugs, setLinkedBugs] = useState<LinkedBug[] | null>(null)
     const [sortOrder, setSortOrder] = useState<LinkedBugSortOrder | null>(null)
+    const [isDeletingIssue, setIsDeletingIssue] = useState<boolean>(false)
 
     const context = useProductContext();
 
     const issueKey = context?.extension.issue.key
-    const isLoadingGridData = !linkedBugs || !sortOrder
+    const isLoading = !linkedBugs || !sortOrder || isDeletingIssue
     const linkedBugsTableHead = {
         cells: [
             {
@@ -79,8 +80,7 @@ export function IssueLinkTable() {
             {
                 content: <Button appearance="subtle"
                     onClick={
-                        () => invoke('unlinkIssue', { issueLinkId: linkedBug.linkId })
-                            .then(getLinkedBugsByIssueKey)
+                        () => unlinkIssue(linkedBug)
                     }
                     iconBefore="editor-close"> </Button>
             }
@@ -91,7 +91,7 @@ export function IssueLinkTable() {
         if (!context || !sortOrder) {
             return
         }
-        getLinkedBugsByIssueKey()
+        getLinkedBugsByIssueKey().then(setLinkedBugs)
     }, [context, sortOrder])
 
     useEffect(() => {
@@ -103,13 +103,23 @@ export function IssueLinkTable() {
     }
 
     function getLinkedBugsByIssueKey() {
-        invoke<LinkedBug[]>('getLinkedBugsByIssueKey', {
+        return invoke<LinkedBug[]>('getLinkedBugsByIssueKey', {
             issueKey
-        }).then(setLinkedBugs)
+        })
+    }
+
+    function unlinkIssue(linkedBug: LinkedBug) {
+        setIsDeletingIssue(true)
+        invoke('unlinkIssue', { issueLinkId: linkedBug.linkId })
+            .then(getLinkedBugsByIssueKey)
+            .then((linkedBugs) => {
+                setLinkedBugs(linkedBugs)
+                setIsDeletingIssue(false)
+            })
     }
 
     return <>
-        <DynamicTable isLoading={isLoadingGridData}
+        <DynamicTable isLoading={isLoading}
             head={linkedBugsTableHead}
             rows={linkedBugsTableRows}
             emptyView={<Text>No linked bugs</Text>}></DynamicTable>
