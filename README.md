@@ -1,5 +1,7 @@
 # Forge UIKit app
 
+![Demo](demo.gif)
+
 This project contains a Forge app written in TypeScript that displays all linked bugs
 to a Jira issue in the issue panel. The bug links are put in a datagrid. Each link can be deleted.
 The priority and status columns are sorted based on the jira order configuration.
