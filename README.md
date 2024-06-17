@@ -1,6 +1,8 @@
-# Forge Hello World
+# Forge UIKit app
 
-This project contains a Forge app written in Javascript that displays `Hello World!` in a Jira issue panel. 
+This project contains a Forge app written in TypeScript that displays all linked bugs
+to a Jira issue in the issue panel. The bug links are put in a datagrid. Each link can be deleted.
+The priority and status columns are sorted based on the jira order configuration.
 
 See [developer.atlassian.com/platform/forge/](https://developer.atlassian.com/platform/forge) for documentation and tutorials explaining Forge.
 
@@ -10,9 +12,9 @@ See [Set up Forge](https://developer.atlassian.com/platform/forge/set-up-forge/)
 
 ## Quick start
 
-- Modify your app frontend by editing the `src/frontend/index.jsx` file.
+- Modify your app frontend by editing the `src/frontend/index.tsx` file.
 
-- Modify your app backend by editing the `src/resolvers/index.js` file to define resolver functions. See [Forge resolvers](https://developer.atlassian.com/platform/forge/runtime-reference/custom-ui-resolver/) for documentation on resolver functions.
+- Modify your app backend by editing the `src/resolvers/index.ts` file to define resolver functions. See [Forge resolvers](https://developer.atlassian.com/platform/forge/runtime-reference/custom-ui-resolver/) for documentation on resolver functions.
 
 - Build and deploy your app by running:
 ```

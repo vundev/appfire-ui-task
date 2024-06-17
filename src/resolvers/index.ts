@@ -5,54 +5,6 @@ import { LinkedBugSortOrder } from "../model/LinkedBugSortOrder";
 
 const resolver = new Resolver();
 
-const issueLinkedBugsFilter = (issueLink: any) =>
-  (issueLink.outwardIssue &&
-    issueLink.outwardIssue.fields.issuetype.name === "Bug") ||
-  (issueLink.inwardIssue &&
-    issueLink.inwardIssue.fields.issuetype.name === "Bug");
-
-const linkedBugFactory = (issueLink: any) => {
-  const linkedIssue = issueLink.outwardIssue || issueLink.inwardIssue;
-  return <LinkedBug>{
-    key: linkedIssue.key,
-    linkId: issueLink.id,
-    summary: linkedIssue.fields.summary,
-    status: linkedIssue.fields.status.name,
-    priority: linkedIssue.fields.priority.name,
-    created: "",
-  };
-};
-
-const linkedIssueKeyFactory = (issueLink: any): string => {
-  const linkedIssue = issueLink.outwardIssue || issueLink.inwardIssue;
-  return linkedIssue.key;
-};
-
-const linkedIssueOrderFactory = (order: any[]): string[] =>
-  order.map((orderItem) => orderItem.name);
-
-const toJSON = (data: any) => data.json();
-
-resolver.define("getText", (req) => {
-  console.log(req);
-  return "Hello world";
-});
-
-resolver.define("getText2", (req) => {
-  console.log(req);
-  return "Hello world";
-});
-
-resolver.define("getComments", async (req) => {
-  console.log(req);
-  const issueIdOrKey = "SDP-1";
-  const res = await api
-    .asApp()
-    .requestJira(route`/rest/api/3/issue/${issueIdOrKey}/comment`);
-  const data: any = await res.json();
-  return data.comments;
-});
-
 /**
  * @returns Return an array of LinkedBug objects. If the issueKey is an empty
  * string or undefined return an empty array.
@@ -131,5 +83,35 @@ function getLinkedIssueFields(issueKey: string): Promise<{
       })
     );
 }
+
+// --- Factories and Filters ---
+
+const issueLinkedBugsFilter = (issueLink: any) =>
+  (issueLink.outwardIssue &&
+    issueLink.outwardIssue.fields.issuetype.name === "Bug") ||
+  (issueLink.inwardIssue &&
+    issueLink.inwardIssue.fields.issuetype.name === "Bug");
+
+const linkedBugFactory = (issueLink: any) => {
+  const linkedIssue = issueLink.outwardIssue || issueLink.inwardIssue;
+  return <LinkedBug>{
+    key: linkedIssue.key,
+    linkId: issueLink.id,
+    summary: linkedIssue.fields.summary,
+    status: linkedIssue.fields.status.name,
+    priority: linkedIssue.fields.priority.name,
+    created: "",
+  };
+};
+
+const linkedIssueKeyFactory = (issueLink: any): string => {
+  const linkedIssue = issueLink.outwardIssue || issueLink.inwardIssue;
+  return linkedIssue.key;
+};
+
+const linkedIssueOrderFactory = (order: any[]): string[] =>
+  order.map((orderItem) => orderItem.name);
+
+const toJSON = (data: any) => data.json();
 
 export const handler = resolver.getDefinitions();
