@@ -3,6 +3,7 @@ import { Button, DynamicTable, Text, useProductContext } from "@forge/react";
 import React, { useEffect, useState } from "react";
 import { LinkedBug } from "../../../model/LinkedBug";
 import { LinkedBugSortOrder } from "../../../model/LinkedBugSortOrder";
+import { useIssueLinkTableConstants } from "./IssueLinkTableConstants";
 
 export function IssueLinkTable() {
     const [linkedBugs, setLinkedBugs] = useState<LinkedBug[] | null>(null)
@@ -13,43 +14,7 @@ export function IssueLinkTable() {
 
     const issueKey = context?.extension.issue.key
     const isLoading = !linkedBugs || !sortOrder || isDeletingIssue
-    const linkedBugsTableHead = {
-        cells: [
-            {
-                key: "key",
-                content: "Issue key",
-                isSortable: true,
-            },
-            {
-                key: "summary",
-                content: "Summary",
-                isSortable: true,
-            },
-            {
-                key: "status",
-                content: "Status",
-                isSortable: true,
-            },
-            {
-                key: "priority",
-                content: "Priority",
-                isSortable: true,
-            },
-            {
-                key: "created",
-                content: "Created",
-                isSortable: true,
-            },
-            {
-                key: "assignee",
-                content: "Assignee",
-                isSortable: true,
-            },
-            {
-                content: 'Unlink'
-            }
-        ]
-    }
+    const { linkedBugsTableHead } = useIssueLinkTableConstants();
     const linkedBugsTableRows = (linkedBugs || []).map((linkedBug, index) => ({
         key: `row-${index}`,
         cells: [
@@ -62,11 +27,11 @@ export function IssueLinkTable() {
                 content: linkedBug.summary,
             },
             {
-                key: sortByLinkedBugSortOrder(sortOrder?.statusOrder, linkedBug.status),
+                key: getSortKeyByLinkedBugSortOrder(sortOrder?.statusOrder, linkedBug.status),
                 content: linkedBug.status,
             },
             {
-                key: sortByLinkedBugSortOrder(sortOrder?.priorityOrder, linkedBug.priority),
+                key: getSortKeyByLinkedBugSortOrder(sortOrder?.priorityOrder, linkedBug.priority),
                 content: linkedBug.priority,
             },
             {
@@ -98,7 +63,7 @@ export function IssueLinkTable() {
         invoke<LinkedBugSortOrder>('getLinkedBugSortOrder').then(setSortOrder)
     }, [])
 
-    function sortByLinkedBugSortOrder(sortOrder: string[] | undefined, key: string): number {
+    function getSortKeyByLinkedBugSortOrder(sortOrder: string[] | undefined, key: string): number {
         return (sortOrder || []).indexOf(key);
     }
 

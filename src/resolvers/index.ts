@@ -16,7 +16,9 @@ resolver.define("getLinkedBugsByIssueKey", async (request) => {
   const response = await api.asApp().requestJira(endpoint);
   const data = await response.json();
 
-  const issueLinks = data.fields?.issuelinks || [];
+  const issueLinks = (data.fields?.issuelinks || []).filter(
+    issueLinkedBugsFilter
+  );
 
   const issueLinksFields = await Promise.all(
     issueLinks
@@ -25,7 +27,6 @@ resolver.define("getLinkedBugsByIssueKey", async (request) => {
   );
 
   return issueLinks
-    .filter(issueLinkedBugsFilter)
     .map(linkedBugFactory)
     .map((linkedBug: LinkedBug, index: number) => {
       return <LinkedBug>{
@@ -87,10 +88,8 @@ function getLinkedIssueFields(issueKey: string): Promise<{
 // --- Factories and Filters ---
 
 const issueLinkedBugsFilter = (issueLink: any) =>
-  (issueLink.outwardIssue &&
-    issueLink.outwardIssue.fields.issuetype.name === "Bug") ||
-  (issueLink.inwardIssue &&
-    issueLink.inwardIssue.fields.issuetype.name === "Bug");
+  issueLink.outwardIssue?.fields?.issuetype?.name === "Bug" ||
+  issueLink.inwardIssue?.fields?.issuetype?.name === "Bug";
 
 const linkedBugFactory = (issueLink: any) => {
   const linkedIssue = issueLink.outwardIssue || issueLink.inwardIssue;
